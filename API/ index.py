@@ -1,3 +1,4 @@
+en -r
 # api/index.py
 
 from fastapi import FastAPI, HTTPException
