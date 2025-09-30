@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StableMusicSPAI - Generación de Música por IA</title>
+    
+    <style>
+        /* Estilos CSS BÁSICOS para la marca StableMusicSPAI */
+        :root {
+            --color-amarillo-spai: #FFD700; /* Amarillo */
+            --color-azul-spai: #004D99;     /* Azul Profundo */
+            --color-rojo-spai: #CC0000;     /* Rojo (para acentos) */
+            --color-fondo: #f4f4f9;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--color-fondo);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: var(--color-azul-spai);
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        
+        .logo-text span {
+            font-weight: bold;
+        }
+
+        .logo-text .amarillo { color: var(--color-amarillo-spai); }
+        .logo-text .azul { color: var(--color-azul-spai); }
+        .logo-text .rojo { color: var(--color-rojo-spai); }
+
+        #container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #prompt-input {
+            width: 95%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid var(--color-azul-spai);
+            border-radius: 6px;
+            font-size: 1em;
+            resize: vertical;
+        }
+
+        #generate-button {
+            background-color: var(--color-azul-spai);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        #generate-button:hover:not(:disabled) {
+            background-color: var(--color-amarillo-spai);
+            color: var(--color-azul-spai);
+        }
+
+        #generate-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 1em;
+            min-height: 30px;
+            color: var(--color-azul-spai);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1 class="logo-text">
+            <span class="amarillo">Stable</span>
+            <span class="azul">Music</span>
+            <span class="amarillo">S</span>
+            <span class="rojo">P</span>
+            <span class="amarillo">AI</span>
+        </h1>
+        <p>Introduce una descripción y la IA generará tu pista musical.</p>
+
+        <form id="generation-form">
+            <textarea id="prompt-input" rows="3" placeholder="Ej: Ritmo techno de Ibiza para un atardecer, con toques de guitarra flamenca."></textarea>
+            
+            <button type="submit" id="generate-button">
+                Generar Música 🎶
+            </button>
+        </form>
+        
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 🚨 CAMBIA ESTA URL por tu URL REAL de Vercel 🚨
+        // EJEMPLO: https://stable-music-spai-xxxx.vercel.app
+        // =========================================================================
+        const VERCEL_API_URL = 'https://TU-URL-DE-VERCEL-AQUI.vercel.app'; 
+        // =========================================================================
+
+        const form = document.getElementById('generation-form');
+        const promptInput = document.getElementById('prompt-input');
+        const generateButton = document.getElementById('generate-button');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const prompt = promptInput.value.trim();
+
+            if (!prompt) {
+                statusDiv.textContent = "Por favor, introduce una descripción.";
+                return;
+            }
+
+            // 1. Interfaz: Deshabilitar botón y mostrar estado
+            generateButton.disabled = true;
+            generateButton.textContent = "Generando... espera un momento ⏳";
+            statusDiv.textContent = "Llamando a la IA de Vercel. Esto puede tardar unos segundos.";
+            resultDiv.innerHTML = ''; // Limpiar resultados anteriores
+
+            try {
+                // 2. Llamada a la API de Vercel
+                const response = await fetch(`${VERCEL_API_URL}/generate_music`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Enviamos el prompt como un objeto JSON
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                const data = await response.json();
+
+                // 3. Manejo de la respuesta
+                if (response.ok && data.status === 'success') {
+                    statusDiv.textContent = `✅ ¡Música generada! Track ID: ${data.track_id}`;
+                    resultDiv.innerHTML = `
+                        <p><strong>Prompt Usado:</strong> "${data.prompt_used}"</p>
+                        <p>La URL de audio simulada es: <a href="${data.audio_url}" target="_blank">${data.audio_url}</a></p>
+                        <p style="color: green; font-weight: bold;">(Nota: La URL actual es solo de ejemplo, pero la comunicación con Vercel ha funcionado).</p>
+                    `;
+                } else {
+                    // Manejar errores de la API (ej: prompt inválido)
+                    statusDiv.textContent = `❌ Error de la API: ${data.detail || 'Algo salió mal en el servidor.'}`;
+                }
+
+            } catch (error) {
+                // Manejar errores de red (ej: API no está activa, error CORS)
+                console.error('Error de red al llamar a la API:', error);
+                statusDiv.textContent = `🚨 Error de conexión: No se pudo contactar a la API en ${VERCEL_API_URL}. ¿Está la URL correcta y activa?`;
+            } finally {
+                // 4. Interfaz: Habilitar el botón
+                generateButton.disabled = false;
+                generateButton.textContent = "Generar Música 🎶";
+            }
+        });
+    </script>
+
+</body>
+</html>
