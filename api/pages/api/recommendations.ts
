@@ -1,0 +1,23 @@
+import { PrismaClient } from "@prisma/client";
+import type { NextApiRequest, NextApiResponse } from "next";
+const prisma = new PrismaClient();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const userId = req.query.userId as string;
+
+  const recentPlays = await prisma.trackPlay.findMany({
+    where: { userId: Number(userId) },
+    take: 10,
+    include: { track: true },
+  });
+
+  const popularTracks = await prisma.track.findMany({
+    orderBy: { plays: "desc" },
+    take: 10,
+  });
+
+  res.json({
+    basedOnHistory: recentPlays.map((p) => p.track),
+    trending: popularTracks,
+  });
+}
