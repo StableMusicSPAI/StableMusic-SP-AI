@@ -1,12 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getUploadUrl } from "../../lib/s3";
+import formidable from "formidable";
+import fs from "fs";
+import { transcodeAudio } from "../../lib/ffmpeg";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+export const config = {
+  api: { bodyParser: false },
+};
 
-  const { key, contentType } = req.body;
-  if (!key || !contentType) return res.status(400).json({ error: "Missing key or contentType" });
-
-  const url = await getUploadUrl(key, contentType);
-  res.json({ url });
+export default async function handler(req, res) {
+  const form = new formidable.IncomingForm();
+  form.parse(req, async (err, fields, files) => {
+    const file = files.audio[0];
+    const output = `/tmp/${Date.now()}.mp3`;
+    await transcodeAudio(file.filepath, output);
+    res.json({ url: `/uploads/${output}` });
+  });
 }
