@@ -36,3 +36,12 @@ model PlaylistTrack {
   track     Track    @relation(fields: [trackId], references: [id])
   trackId   Int
 }
+
+model TrackPlay {
+  id      Int      @id @default(autoincrement())
+  track   Track    @relation(fields: [trackId], references: [id])
+  trackId Int
+  user    User?    @relation(fields: [userId], references: [id])
+  userId  Int?
+  playedAt DateTime @default(now())
+}
