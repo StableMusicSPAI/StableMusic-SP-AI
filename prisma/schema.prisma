@@ -8,9 +8,16 @@ datasource db {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  tracks    Track[]
+  id    Int    @id @default(autoincrement())
+  name  String?
+  email String? @unique
+  role  Role    @default(USER)
+}
+
+enum Role {
+  USER
+  PREMIUM
+  ADMIN
 }
 
 model Track {
