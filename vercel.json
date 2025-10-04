@@ -1,7 +1,8 @@
+
 {
   "functions": {
-    "pages/**.ts": {
-      "maxDuration": 10
+    "api/**/*.ts": {
+      "runtime": "nodejs18.x"
     }
   }
 }
