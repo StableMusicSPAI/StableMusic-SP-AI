@@ -1,0 +1,37 @@
+{
+  "name": "stable-music-backend",
+  "version": "1.0.0",
+  "description": "Backend services for Stable Music platform (Streaming, POD, Royalties)",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn src/server.ts",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "fastify",
+    "streaming"
+  ],
+  "author": "Carlos Espejo",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^4.24.3",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/pg": "^8.10.8",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "jest": "^29.7.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.2"
+  }
+}
